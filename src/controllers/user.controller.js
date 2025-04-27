@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import fs from "fs";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -272,8 +273,10 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
+
   if (!avatar.url) throw new ApiError(400, "ERROR WHILE UPLOADING AVATAR");
 
+  fs.unlinkSync(avatarLocalPath);
   const user = User.findByIdAndUpdate(
     req.user?._id,
     {
@@ -299,6 +302,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   if (!coverImage.url)
     throw new ApiError(400, "ERROR WHILE UPLOADING Cover Image");
 
+  fs.unlinkSync(coverImageLocalPath);
   const user = User.findByIdAndUpdate(
     req.user?._id,
     {
